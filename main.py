@@ -25,7 +25,7 @@ from gtts import gTTS
 import tempfile
 
 
-# A. Let me create my FIRST function, which is a Voice Transcription. This function will load the audio_file_path, but first I will load the Whisper model from OpenAi, and then transcribe the audio
+# A. Let me create my FIRST function, which is a Voice Transcription. This function will load the audio_file_path, but before that I will load the Whisper model from OpenAi, and then transcribe the audio
 
 # I will load the Whisper model once GLOBALLY to avoid reloading it on every function call. Choosing 'base' or 'small' is usually a good starting point for speed.
 # For Kinyarwanda, 'large' might offer better accuracy but will be slower and require more RAM. We can change 'base' to 'small', 'medium', or 'large' as needed.
@@ -45,7 +45,7 @@ def voice_transcription(audio_file_path):
         # the Whisper model will automatically handle audio loading and resampling;
         # and here I will pass in the audio_file_path to be transcribed, and specify the language Kinyarwanda as the language to help the model, though it can auto-detect.
 
-        result = WHISPER_MODEL.transcribe(audio_file_path, language="kinyarwanda")
+        result = WHISPER_MODEL.transcribe(audio_file_path, language="en")
         transcribed_text= result["text"]
         print(f"Transcription complete: {transcribed_text}")
 
@@ -81,7 +81,7 @@ def voice_to_voice(audio_file_path):
     # I'll need placeholders for the 5 audio outputs expected by Gradio. For now, let me return empty strings/None, but eventually these will be file paths
     # The order must match: English, French, Spanish, German, Kiswahili
 
-    return None, None, None, None, None
+    return transcription_response, None, None, None, None, None
 
 
 # -----------------Let's build the Gradio Interface---------------------------
@@ -97,14 +97,14 @@ interface = gr.Interface(
     fn=voice_to_voice,
     inputs=audio_input,
     outputs=[
-        gr.Textbox(label="Kinyarwanda Transcription (for testing)"),
+        gr.Textbox(label="English Transcription (for testing)"),
         gr.Audio(label="English"),
         gr.Audio(label="French"),
         gr.Audio(label="Spanish"),
         gr.Audio(label= "German"),
         gr.Audio(label= "Kiswahili")
     ],
-    title="KinyarwandAI",
+    title="KinyarwandAI Voice Translator",
     description="Speak in Kinyarwanda and get real-time translations to English, French, Spanish, German, and Kiswahili "
 
 )

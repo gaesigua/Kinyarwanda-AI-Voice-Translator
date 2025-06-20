@@ -24,6 +24,7 @@ from gtts import gTTS
 
 import tempfile
 
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 # A. Let me create my FIRST function, which is a Voice Transcription. This function will load the audio_file_path, but before that I will load the Whisper model from OpenAi, and then transcribe the audio
 
@@ -34,7 +35,6 @@ import tempfile
 
 WHISPER_MODEL = whisper.load_model("base")
 
-
 def voice_transcription(audio_file_path):
 
     if audio_file_path is None:
@@ -43,9 +43,10 @@ def voice_transcription(audio_file_path):
 
     try:
         # the Whisper model will automatically handle audio loading and resampling;
-        # and here I will pass in the audio_file_path to be transcribed, and specify the language Kinyarwanda as the language to help the model, though it can auto-detect.
+        # and here I will pass in the audio_file_path to be transcribed. To help the model, I will specify the language English, though it can auto-detect.
+        # For now, I am explicitly setting the language to English ("en") but this program will be specifically for Kinyarwanda language.
 
-        result = WHISPER_MODEL.transcribe(audio_file_path, language="en")
+        result = WHISPER_MODEL.transcribe(audio_file_path, language="en") #For now I am setting the language to English, we will change it to kinyarwanda later on
         transcribed_text= result["text"]
         print(f"Transcription complete: {transcribed_text}")
 
@@ -55,7 +56,26 @@ def voice_transcription(audio_file_path):
         return f"Error during transcription: {e}"
 
 
-#     Let me create my SECOND function, which is a Text Translation. This function will return an empty string for now
+# B.    Let me create my SECOND function, which is a Text Translation.
+#       This function will translate the English text (since it is what has been transcribed) to target languages (English, French, Spanish, German, and Kiswahili)
+#       To achieve this I will use the NLLB-200 model from the transformers library
+
+        #Let's load NLLB-200 model and tokenizer globally for efficiency
+        # Using a distilled version for faster inference on CPU.
+        NLLB_MODEL_NAME = "facebook/nllb-200-distilled-600M"
+        NLLB_TOKENIZER = AutoTokenizer.from_pretrained(NLLB_MODEL_NAME)
+        NLLB_MODEL = AutoModelForSeq2SeqLM.from_pretrained(NLLB_MODEL_NAME)
+
+        #Let's now create a pipeline for convenience
+
+        NLLB_TRANSLATOR = pipeline(
+            "translation",
+            model = NLLB_MODEL,
+            tokenizer = NLLB_TOKENIZER,
+            src_lang = "eng_latn",             # Source language for this pipeline will be in English
+            device = -1                        # -1 is for CPU, 0 is for GPU. Since GPU is not available I will use -1
+        )
+
 
 def text_translation():
     return ""
@@ -97,7 +117,7 @@ interface = gr.Interface(
     fn=voice_to_voice,
     inputs=audio_input,
     outputs=[
-        gr.Textbox(label="English Transcription (for testing)"),
+        gr.Textbox(label="Kinyarwanda Transcription (for testing)"),
         gr.Audio(label="English"),
         gr.Audio(label="French"),
         gr.Audio(label="Spanish"),

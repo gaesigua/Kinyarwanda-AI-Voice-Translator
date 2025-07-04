@@ -76,8 +76,13 @@ def voice_transcription(audio_file_path):
             device = -1                        # -1 is for CPU, 0 is for GPU. Since GPU is not available I will use -1
         )
 
+# This function will translates text from English to the target languages using NLLB-200.
+# The arguments will be: a text-to-translate of type str and a target language code from the NLLB-200 language codes (and these codes are also str e.g: 'fra_Latn', 'spa_Latn', 'deu_Latn', 'swh_Latn')
+# and the function should return a translated text of type str
 
-def text_translation():
+def text_translation(text_to_translate: str, target_language_code ):
+
+
     return ""
 
 # Let me create my THIRD function, which is a Text to Speech. It will return None for now
